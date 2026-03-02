@@ -4,7 +4,9 @@ import { SHARED_TEST } from "./shared/example.js";
 import { VALID_ROUTES } from "./shared/ValidRoutes.js";
 
 const PORT = Number.parseInt(getEnvVar("PORT", false), 10) || 3000;
-const STATIC_DIR = getEnvVar("STATIC_DIR") || "public";
+const STATIC_DIR = getEnvVar("STATIC_DIR", false) || "public";
+console.log("ENV STATIC_DIR =", process.env.STATIC_DIR);
+console.log("STATIC_DIR var =", STATIC_DIR);
 const app = express();
 
 app.use(express.static(STATIC_DIR));
