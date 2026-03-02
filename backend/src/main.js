@@ -1,8 +1,8 @@
 import express from "express";
 import { getEnvVar } from "./getEnvVar.js";
-import { SHARED_TEST } from "./shared/example.js";
-import { VALID_ROUTES } from "./shared/ValidRoutes.js";
-
+import { SHARED_TEST } from "../../shared/example.js";
+import { VALID_ROUTES } from "../../shared/ValidRoutes.js";
+// changed routes
 const PORT = Number.parseInt(getEnvVar("PORT", false), 10) || 3000;
 const STATIC_DIR = getEnvVar("STATIC_DIR") || "public";
 const app = express();
