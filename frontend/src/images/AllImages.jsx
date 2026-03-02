@@ -1,15 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MainLayout } from "../MainLayout.jsx";
 import { fetchAll } from "./ImageFetcher.js";
 import { ImageGrid } from "./ImageGrid.jsx";
 
 export function AllImages() {
     const [imageData, _setImageData] = useState(fetchAll);
+    const [loading, _setLoading] = useState(true);
+    const [error, _setError] = useState("");
+
+    useEffect(() => {
+        // fetch("/api/images")
+        async function doFetch() {
+            try{
+                const response = await fetch("/api/images");
+
+                if (!response.ok) {
+                    throw new Error(`Error: HTTP ${response.status} ${response.statusText}`);
+
+                }
+
+                const images = await response.json();
+
+                if (!Array.isArray(images)) {
+                    throw new Error("Error: Response was not an array");
+                }
+
+                _setImageData(images);
+                _setError("");
+            } catch (e) {
+                _setError(e instanceof Error ? e.message : String(e));
+            } finally {
+                _setLoading(false);
+            }
+        }
+        doFetch();
+    }, []);
     return (
 
         <>
             <h2>All Images</h2>
-            <ImageGrid images={imageData} />
+
+            {loading && <p>Loading...</p>}
+            {!loading && error !== "" && (
+                <p>{error}</p>
+            )}
+            {!loading && error === "" && (
+                <ImageGrid images={imageData} />
+
+            )}
         </>
 
 
