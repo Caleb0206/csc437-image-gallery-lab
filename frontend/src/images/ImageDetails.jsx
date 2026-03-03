@@ -26,7 +26,7 @@ export function ImageDetails() {
                 }
 
                 const found = 
-                    images.find((img) => String(img.id) === String(imageId)) || null;
+                    images.find((img) => String(img._id) === String(imageId)) || null;
 
                 _setImage(found);
                 _setError("");

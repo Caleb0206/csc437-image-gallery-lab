@@ -51,5 +51,5 @@ export function fetchAll() {
 }
 
 export function fetchById(id) {
-    return IMAGES.find(image => image.id === id);
+    return IMAGES.find(image => image._id === id);
 }
