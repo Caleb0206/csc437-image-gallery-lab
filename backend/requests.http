@@ -1,0 +1,40 @@
+### Get all images.  Each request **MUST** be delimited by a triple hash
+# This is a comment
+GET http://localhost:3000/api/images
+
+### Get one image (GOOD)
+GET http://localhost:3000/api/images/69a6291051e301bc8ac21c66
+
+### Get one image (BAD: valid ObjectId but not in DB -> 404)
+GET http://localhost:3000/api/images/aaaaaaaaaaaaaaaaaaaaaaaa
+
+### Rename image (GOOD) -> expect 204
+PATCH http://localhost:3000/api/images/69a6291051e301bc8ac21c65/name
+Content-Type: application/json
+
+{ "name": "Blue merle herding sheep !!!!!" }
+
+### Rename image (BAD: valid ObjectId but not in DB -> 404)
+PATCH http://localhost:3000/api/images/aaaaaaaaaaaaaaaaaaaaaaaa/name
+Content-Type: application/json
+
+{ "name": "Doesn't matter" }
+
+### Rename image (BAD: invalid ObjectId -> 404)
+PATCH http://localhost:3000/api/images/not-a-valid-objectid/name
+Content-Type: application/json
+
+{ "name": "Anything" }
+
+### Rename image (BAD: bad request body -> 400)
+PATCH http://localhost:3000/api/images/69a6291051e301bc8ac21c65/name
+Content-Type: application/json
+
+{ "title": "Wrong field name" }
+
+### Rename image (BAD: name too long -> 413)
+PATCH http://localhost:3000/api/images/69a6291051e301bc8ac21c65/name
+Content-Type: application/json
+
+{ "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }
+
