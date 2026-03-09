@@ -21,12 +21,12 @@ export function registerImageRoutes(app, imageProvider) {
             const { imageId} = req.params;
 
             if (!ObjectId.isValid(imageId)) {
-                return res.status(404).send({ error: "Not found", message: "No image with that ID"});
+                return res.status(404).send({ error: "Not Found", message: "No image with that ID"});
             }
             const image = await imageProvider.getOneImage(imageId);
             if (!image) {
                 return res.status(404).send({
-                    error: "Not found",
+                    error: "Not Found",
                     message: "No image with that ID",
                 });
             }
@@ -41,7 +41,7 @@ export function registerImageRoutes(app, imageProvider) {
             const { imageId } = req.params;
             if (!ObjectId.isValid(imageId)) {
                 return res.status(404).send({
-                    error: "Not found",
+                    error: "Not Found",
                     message: "Image does not exist",
                 })
             }
@@ -70,7 +70,7 @@ export function registerImageRoutes(app, imageProvider) {
 
             if (matchedCount === 0) {
                 return res.status(404).send({
-                    error: "Not found",
+                    error: "Not Found",
                     message: "Image does not exist",
                 });
             }
