@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { MainLayout } from "../MainLayout.jsx";
-import { fetchById } from "./ImageFetcher.js";
 import { useParams } from "react-router";
 import {ImageNameEditor} from "./ImageNameEditor";
 

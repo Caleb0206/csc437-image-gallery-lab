@@ -10,7 +10,7 @@ const IMAGES = [
     },
     {
         id: "1",
-        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Huskiesatrest.jpg/2560px-Huskiesatrest.jpg",
+        src: "https://upload.wikimedia.org/wikipedia/commons/7/7a/Huskiesatrest.jpg",
         name: "Huskies",
         author: {
             id: "0",
@@ -28,7 +28,7 @@ const IMAGES = [
     },
     {
         id: "3",
-        src: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Felis_catus-cat_on_snow.jpg/2560px-Felis_catus-cat_on_snow.jpg",
+        src: "https://upload.wikimedia.org/wikipedia/commons/b/b6/Felis_catus-cat_on_snow.jpg",
         name: "Tabby cat",
         author: {
             id: "1",
