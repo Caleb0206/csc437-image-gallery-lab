@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { MainLayout } from "../MainLayout.jsx";
 import { useParams } from "react-router";
-import {ImageNameEditor} from "./ImageNameEditor";
+import {ImageNameEditor} from "./ImageNameEditor.jsx";
 
 export function ImageDetails() {
     const { imageId } = useParams();
