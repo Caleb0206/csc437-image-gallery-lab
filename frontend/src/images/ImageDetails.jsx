@@ -2,43 +2,34 @@ import { useState, useEffect } from "react";
 import { MainLayout } from "../MainLayout.jsx";
 import { fetchById } from "./ImageFetcher.js";
 import { useParams } from "react-router";
+import {ImageNameEditor} from "./ImageNameEditor";
 
 export function ImageDetails() {
     const { imageId } = useParams();
-    const [image, _setImage] = useState(fetchById(imageId));
+
+    const [image, _setImage] = useState(null);
     const [loading, _setLoading] = useState(true);
     const [error, _setError] = useState("");
 
     useEffect(() => {
         async function doFetch() {
             try {
-                const response = await fetch("/api/images");
+                const response = await fetch(`/api/images/${imageId}`);
 
                 if (!response.ok) {
                     throw new Error(`Error: HTTP ${response.status} ${response.statusText}`);
-
                 }
-
-                const images = await response.json();
-
-                if (!Array.isArray(images)) {
-                    throw new Error("Error: Response JSON was not an array");
-                }
-
-                const found = 
-                    images.find((img) => String(img._id) === String(imageId)) || null;
-
-                _setImage(found);
-                _setError("");
+                const result = await response.json();
+                _setImage(result);
             } catch (e) {
                 _setError(e instanceof Error ? e.message : String(e));
-                setImage(null);
+                _setImage(null);
             } finally {
                 _setLoading(false);
             }
         }
         doFetch();
-    }, []);
+    }, [imageId]);
 
 
 
@@ -52,6 +43,16 @@ export function ImageDetails() {
                 <>
                     <h2>{image.name}</h2>
                     <p>By {image.author.username}</p>
+                    <ImageNameEditor
+                        imageId={String(image._id)}
+                        initialValue={image.name}
+                        onRenameSuccess={(newName) => {
+                            _setImage((prev) => {
+                                if (!prev) return prev;
+                                return { ...prev, name: newName };
+                            })
+                        }}
+                    />
                     <img className="ImageDetails-img" src={image.src} alt={image.name} />
                 </>
 

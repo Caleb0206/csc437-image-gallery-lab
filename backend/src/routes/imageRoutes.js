@@ -49,7 +49,7 @@ export function registerImageRoutes(app, imageProvider) {
             if (typeof newName !== "string") {
                 return res.status(400).send({
                     error: "Bad Request",
-                    mesage: 'Request body must be JSON with a string field "name"'
+                    message: 'Request body must be JSON with a string field "name"'
                 });
             }
             const trimmed = newName.trim();
