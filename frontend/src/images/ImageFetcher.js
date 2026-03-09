@@ -1,3 +1,4 @@
+// Deprecated now that we use MongoDB
 const IMAGES = [
     {
         id: "0",
