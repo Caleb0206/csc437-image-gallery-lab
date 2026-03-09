@@ -37,6 +37,7 @@ export function registerImageRoutes(app, imageProvider) {
     });
     app.patch("/api/images/:imageId/name", async (req, res) => {
         try {
+            await waitDuration(1000);
             const { imageId } = req.params;
             if (!ObjectId.isValid(imageId)) {
                 return res.status(404).send({
