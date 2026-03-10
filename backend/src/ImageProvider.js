@@ -67,4 +67,15 @@ export class ImageProvider {
         )
         return result.matchedCount;
     }
+
+    async getImageOwnerUsername(imageId) {
+        if (!ObjectId.isValid(imageId)) {
+            return null;
+        }
+        const doc = await this.imagesCollection.findOne(
+            { _id: new ObjectId(imageId) },
+            { projection: { authorId: 1 } }
+        );
+        return doc?.authorId ?? null;
+    }
 }

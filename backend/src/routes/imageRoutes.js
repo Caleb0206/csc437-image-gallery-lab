@@ -46,6 +46,25 @@ export function registerImageRoutes(app, imageProvider) {
                 })
             }
 
+            const loggedInUsername = req.userInfo?.username;
+            if (typeof loggedInUsername !== "string") {
+                return res.status(401).end();
+            }
+
+            const ownerUsername = await imageProvider.getImageOwnerUsername(imageId);
+            if (!ownerUsername) {
+                return res.status(404).send({
+                    error: "Not Found",
+                    message: "Image does not exist",
+                });
+            }
+            if (ownerUsername !== loggedInUsername) {
+                return res.status(403).send({
+                    error: "Forbidden",
+                    message: "This user does not own this image",
+                });
+            }
+
             const newName = req.body?.name;
             if (typeof newName !== "string") {
                 return res.status(400).send({
