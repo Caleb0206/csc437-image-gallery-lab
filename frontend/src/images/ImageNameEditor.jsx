@@ -1,6 +1,6 @@
-import { useState } from "react";
+import {useState} from "react";
 
-export function ImageNameEditor({ imageId, initialValue, onRenameSuccess }) {
+export function ImageNameEditor({imageId, initialValue, onRenameSuccess, authToken}) {
     const [isEditingName, setIsEditingName] = useState(false);
     const [nameInput, setNameInput] = useState(initialValue || "");
 
@@ -12,6 +12,7 @@ export function ImageNameEditor({ imageId, initialValue, onRenameSuccess }) {
         setNameInput(initialValue || "");
         setError("");
     }
+
     async function handleSubmitPressed() {
         setError("");
         setIsSaving(true);
@@ -21,10 +22,14 @@ export function ImageNameEditor({ imageId, initialValue, onRenameSuccess }) {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
                 },
                 body: JSON.stringify({name: nameInput}),
             })
             if (!response.ok) {
+                if (response.status === 403) {
+                    throw new Error("You do not own this image.");
+                }
                 throw new Error(`HTTP ${response.status} ${response.statusText}`);
             }
             setIsEditingName(false);
@@ -40,7 +45,7 @@ export function ImageNameEditor({ imageId, initialValue, onRenameSuccess }) {
 
     if (isEditingName) {
         return (
-            <div style={{ margin: "1em 0" }}>
+            <div style={{margin: "1em 0"}}>
                 <div aria-live="polite">
                     {isSaving && <p>Renaming image...</p>}
                     {error !== "" && <p>{error}</p>}
@@ -49,7 +54,7 @@ export function ImageNameEditor({ imageId, initialValue, onRenameSuccess }) {
                     New Name
                     <input
                         required
-                        style={{ marginLeft: "0.5em" }}
+                        style={{marginLeft: "0.5em"}}
                         value={nameInput}
                         placeholder={initialValue}
                         onChange={e => setNameInput(e.target.value)}
@@ -67,7 +72,7 @@ export function ImageNameEditor({ imageId, initialValue, onRenameSuccess }) {
         );
     } else {
         return (
-            <div style={{ margin: "1em 0" }}>
+            <div style={{margin: "1em 0"}}>
                 <div aria-live="polite">
                     {error !== "" && <p>{error}</p>}
                 </div>

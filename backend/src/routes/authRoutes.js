@@ -1,5 +1,5 @@
 import express from "express";
-import { getEnvVar } from "../getEnvVar.js";
+import {getEnvVar} from "../getEnvVar.js";
 import jwt from "jsonwebtoken";
 
 /**
@@ -16,7 +16,7 @@ function generateAuthToken(username) {
         jwt.sign(
             payload,
             getEnvVar("JWT_SECRET"),
-            { expiresIn: "1d" },
+            {expiresIn: "1d"},
             (error, token) => {
                 if (error) reject(error);
                 else resolve(token);
@@ -57,10 +57,11 @@ export function registerAuthRoutes(app, credentialsProvider) {
                     message: "Username already exists",
                 });
             }
-            return res.status(201).send();
+            const token = await generateAuthToken(username.trim());
+            return res.status(201).send({token});
         } catch (e) {
             return res.status(500).json({
-                error: e instanceof Error ? e.message: String(e),
+                error: e instanceof Error ? e.message : String(e),
             });
         }
     });
@@ -83,9 +84,9 @@ export function registerAuthRoutes(app, credentialsProvider) {
                 });
             }
             const token = await generateAuthToken(username);
-            return res.status(200).send({ token });
+            return res.status(200).send({token});
         } catch (e) {
-            return res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+            return res.status(500).json({error: e instanceof Error ? e.message : String(e)});
         }
     })
 }

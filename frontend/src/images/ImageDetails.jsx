@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
-import { MainLayout } from "../MainLayout.jsx";
-import { useParams } from "react-router";
+import {useState, useEffect} from "react";
+import {MainLayout} from "../MainLayout.jsx";
+import {useParams} from "react-router";
 import {ImageNameEditor} from "./ImageNameEditor.jsx";
 
-export function ImageDetails() {
-    const { imageId } = useParams();
+export function ImageDetails({authToken}) {
+    const {imageId} = useParams();
 
     const [image, _setImage] = useState(null);
     const [loading, _setLoading] = useState(true);
@@ -13,7 +13,11 @@ export function ImageDetails() {
     useEffect(() => {
         async function doFetch() {
             try {
-                const response = await fetch(`/api/images/${imageId}`);
+                const response = await fetch(`/api/images/${imageId}`, {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                    }
+                });
 
                 if (!response.ok) {
                     throw new Error(`Error: HTTP ${response.status} ${response.statusText}`);
@@ -27,9 +31,9 @@ export function ImageDetails() {
                 _setLoading(false);
             }
         }
-        doFetch();
-    }, [imageId]);
 
+        doFetch();
+    }, [imageId, authToken]);
 
 
     return (
@@ -45,14 +49,15 @@ export function ImageDetails() {
                     <ImageNameEditor
                         imageId={String(image._id)}
                         initialValue={image.name}
+                        authToken={authToken}
                         onRenameSuccess={(newName) => {
                             _setImage((prev) => {
                                 if (!prev) return prev;
-                                return { ...prev, name: newName };
+                                return {...prev, name: newName};
                             })
                         }}
                     />
-                    <img className="ImageDetails-img" src={image.src} alt={image.name} />
+                    <img className="ImageDetails-img" src={image.src} alt={image.name}/>
                 </>
 
             )}

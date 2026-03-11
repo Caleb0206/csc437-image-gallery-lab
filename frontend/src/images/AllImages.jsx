@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { MainLayout } from "../MainLayout.jsx";
-import { ImageGrid } from "./ImageGrid.jsx";
+import {useState, useEffect} from "react";
+import {MainLayout} from "../MainLayout.jsx";
+import {ImageGrid} from "./ImageGrid.jsx";
 
-export function AllImages() {
+export function AllImages({authToken}) {
     const [imageData, _setImageData] = useState([]);
     const [loading, _setLoading] = useState(true);
     const [error, _setError] = useState("");
@@ -10,8 +10,12 @@ export function AllImages() {
     useEffect(() => {
         // fetch("/api/images")
         async function doFetch() {
-            try{
-                const response = await fetch("/api/images");
+            try {
+                const response = await fetch("/api/images", {
+                    headers: {
+                        Authorization: `Bearer ${authToken}`,
+                    },
+                });
 
                 if (!response.ok) {
                     throw new Error(`Error: HTTP ${response.status} ${response.statusText}`);
@@ -32,8 +36,9 @@ export function AllImages() {
                 _setLoading(false);
             }
         }
+
         doFetch();
-    }, []);
+    }, [authToken]);
     return (
 
         <>
@@ -44,7 +49,7 @@ export function AllImages() {
                 <p>{error}</p>
             )}
             {!loading && error === "" && (
-                <ImageGrid images={imageData} />
+                <ImageGrid images={imageData}/>
 
             )}
         </>
