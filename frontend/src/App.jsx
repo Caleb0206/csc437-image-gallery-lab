@@ -34,9 +34,9 @@ function App() {
                     <Route
                         path="upload"
                         element={
-                            <ProtectedRoute authToken={authToken}>
-                                <UploadPage authToken={authToken}/>
-                            </ProtectedRoute>
+                            // <ProtectedRoute authToken={authToken}>
+                            <UploadPage authToken={authToken}/>
+                            // </ProtectedRoute>
                         }/>
                     <Route path="login"
                            element={<LoginPage key={"login"} isRegistering={false} onAuthToken={setAuthToken}/>}/>

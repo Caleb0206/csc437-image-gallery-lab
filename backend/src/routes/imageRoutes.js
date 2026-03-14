@@ -1,7 +1,9 @@
 import express from "express";
-import { ObjectId } from "mongodb";
+import {ObjectId} from "mongodb";
+import {imageMiddlewareFactory, handleImageFileErrors} from "./imageUploadMiddleware.js";
 
 const MAX_NAME_LENGTH = 100;
+
 export function registerImageRoutes(app, imageProvider) {
     function waitDuration(numMs) {
         return new Promise(resolve => setTimeout(resolve, numMs));
@@ -13,15 +15,15 @@ export function registerImageRoutes(app, imageProvider) {
             const images = await imageProvider.getAllImages();
             res.json(images);
         } catch (e) {
-            res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+            res.status(500).json({error: e instanceof Error ? e.message : String(e)});
         }
     });
     app.get("/api/images/:imageId", async (req, res) => {
         try {
-            const { imageId} = req.params;
+            const {imageId} = req.params;
 
             if (!ObjectId.isValid(imageId)) {
-                return res.status(404).send({ error: "Not Found", message: "No image with that ID"});
+                return res.status(404).send({error: "Not Found", message: "No image with that ID"});
             }
             const image = await imageProvider.getOneImage(imageId);
             if (!image) {
@@ -32,13 +34,13 @@ export function registerImageRoutes(app, imageProvider) {
             }
             res.json(image);
         } catch (e) {
-            res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+            res.status(500).json({error: e instanceof Error ? e.message : String(e)});
         }
     });
     app.patch("/api/images/:imageId/name", async (req, res) => {
         try {
             await waitDuration(1000);
-            const { imageId } = req.params;
+            const {imageId} = req.params;
             if (!ObjectId.isValid(imageId)) {
                 return res.status(404).send({
                     error: "Not Found",
@@ -73,13 +75,13 @@ export function registerImageRoutes(app, imageProvider) {
                 });
             }
             const trimmed = newName.trim();
-            if ( trimmed.length === 0) {
+            if (trimmed.length === 0) {
                 return res.status(400).send({
                     error: "Bad Request",
                     message: 'Field "name" must not be empty',
                 });
             }
-            if ( trimmed.length > MAX_NAME_LENGTH) {
+            if (trimmed.length > MAX_NAME_LENGTH) {
                 return res.status(413).send({
                     error: "Content Too Large",
                     message: `Image name exceeds ${MAX_NAME_LENGTH} characters`,
@@ -95,7 +97,16 @@ export function registerImageRoutes(app, imageProvider) {
             }
             return res.status(204).send();
         } catch (e) {
-            return res.status(500).json({ error: e instanceof Error ? e.message : String(e)});
+            return res.status(500).json({error: e instanceof Error ? e.message : String(e)});
         }
-    })
+    });
+    app.post(
+        "/api/images",
+        imageMiddlewareFactory.single("image"),
+        handleImageFileErrors,
+        async (req, res) => {
+            // Final handler function after the above two middleware functions finish running
+            res.status(500).send("Not implemented");
+        }
+    );
 }
