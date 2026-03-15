@@ -1,30 +1,39 @@
 import express from "express";
-import { getEnvVar } from "./getEnvVar.js";
-import { SHARED_TEST } from "./shared/example.js";
-import { VALID_ROUTES } from "./shared/ValidRoutes.js";
-import { ImageProvider } from "./ImageProvider.js";
-import { connectMongo } from "./connectMongo.js";
-import { registerImageRoutes} from "./routes/imageRoutes.js";
+import {getEnvVar} from "./getEnvVar.js";
+import {SHARED_TEST} from "./shared/example.js";
+import {VALID_ROUTES} from "./shared/ValidRoutes.js";
+import {ImageProvider} from "./ImageProvider.js";
+import {CredentialsProvider} from "./CredentialsProvider.js";
+import {registerAuthRoutes} from "./routes/authRoutes.js";
+import {verifyAuthToken} from "./routes/verifyAuthToken.js"
+import {connectMongo} from "./connectMongo.js";
+import {registerImageRoutes} from "./routes/imageRoutes.js";
 
 const PORT = Number.parseInt(getEnvVar("PORT", false), 10) || 3000;
 const STATIC_DIR = getEnvVar("STATIC_DIR", false) || "public";
+const IMAGE_UPLOAD_DIR = getEnvVar("IMAGE_UPLOAD_DIR", false);
 const app = express();
 
 const mongoClient = connectMongo();
 await mongoClient.connect();
 const imageProvider = new ImageProvider(mongoClient);
+const credentialsProvider = new CredentialsProvider(mongoClient);
 
 app.use(express.static(STATIC_DIR));
+app.use("/uploads", express.static(IMAGE_UPLOAD_DIR));
 app.use(express.json());
 
 app.get("/api/hello", (req, res) => {
     res.send("Hello, World " + SHARED_TEST);
 });
 
+app.use("/api/images", verifyAuthToken);
+
 registerImageRoutes(app, imageProvider);
+registerAuthRoutes(app, credentialsProvider);
 
 app.get(Object.values(VALID_ROUTES), (req, res) => {
-    res.sendFile("index.html", { root: STATIC_DIR });
+    res.sendFile("index.html", {root: STATIC_DIR});
 });
 
 app.listen(PORT, () => {

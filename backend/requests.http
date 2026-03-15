@@ -1,40 +1,137 @@
-### Get all images.  Each request **MUST** be delimited by a triple hash
+@host = http://localhost:3000
+
+@imgOwnerId = 69a6291051e301bc8ac21c67
+@imgAnyId = 69a6291051e301bc8ac21c66
+@bluemerelImgId = 69a6291051e301bc8ac21c65
+
+@tokenTest = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InRlc3QiLCJpYXQiOjE3NzMxNzc2NTEsImV4cCI6MTc3MzI2NDA1MX0.6NqlOdQnDZRJgFTbZYKu5deV-8aLWx98cGeNwpzOJD4
+@tokenOwner = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImNodW5reWxvdmVyMjMiLCJpYXQiOjE3NzMxNzkwOTQsImV4cCI6MTc3MzI2NTQ5NH0.AYYOLPJZumOrkgFFt8CBQ4B1e3EMAnkB7Db_HhOHm4A
+# Images ( public tests will fail once auth is enforced)
+
+### Get all images.  -> 401 without token
 # This is a comment
-GET http://localhost:3000/api/images
+GET {{host}}/api/images
 
-### Get one image (GOOD)
-GET http://localhost:3000/api/images/69a6291051e301bc8ac21c66
+### Get all images (authorized) -> 200
+GET {{host}}/api/images
+Authorization: Bearer {{tokenTest}}
 
-### Get one image (BAD: valid ObjectId but not in DB -> 404)
-GET http://localhost:3000/api/images/aaaaaaaaaaaaaaaaaaaaaaaa
+### Get one image (GOOD) -> 200
+GET {{host}}/api/images/{{imgAnyId}}
+Authorization: Bearer {{tokenTest}}
 
-### Rename image (GOOD) -> expect 204
-PATCH http://localhost:3000/api/images/69a6291051e301bc8ac21c65/name
+### Get one image (BAD: valid ObjectId but not in DB) -> 404
+GET {{host}}/api/images/aaaaaaaaaaaa
+Authorization: Bearer {{tokenTest}}
+
+
+##########################
+### Rename Image
+##########################
+### Rename image (GOOD as owner) -> 204
+PATCH {{host}}/api/images/{{imgOwnerId}}/name
 Content-Type: application/json
+Authorization: Bearer {{tokenOwner}}
 
-{ "name": "Blue merle herding sheep !!!!!" }
+{ "name": "Shiba - renamed from http" }
+
+### Rename image (BAD: not owner) -> 403
+PATCH {{host}}/api/images/{{imgOwnerId}}/name
+Content-Type: application/json
+Authorization: Bearer {{tokenTest}}
+
+{ "name": "hacked name" }
 
 ### Rename image (BAD: valid ObjectId but not in DB -> 404)
-PATCH http://localhost:3000/api/images/aaaaaaaaaaaaaaaaaaaaaaaa/name
+PATCH {{host}}/api/images/aaaaaaaaaaaaaaa/name
 Content-Type: application/json
+Authorization: Bearer {{tokenTest}}
 
 { "name": "Doesn't matter" }
 
 ### Rename image (BAD: invalid ObjectId -> 404)
-PATCH http://localhost:3000/api/images/not-a-valid-objectid/name
+PATCH {{host}}/api/images/not-a-valid-objectid/name
 Content-Type: application/json
+Authorization: Bearer {{tokenTest}}
 
 { "name": "Anything" }
 
 ### Rename image (BAD: bad request body -> 400)
-PATCH http://localhost:3000/api/images/69a6291051e301bc8ac21c65/name
+PATCH {{host}}/api/images/{{imgOwnerId}}/name
 Content-Type: application/json
+Authorization: Bearer {{tokenOwner}}
 
 { "title": "Wrong field name" }
 
 ### Rename image (BAD: name too long -> 413)
-PATCH http://localhost:3000/api/images/69a6291051e301bc8ac21c65/name
+PATCH {{host}}/api/images/{{imgOwnerId}}/name
+Content-Type: application/json
+Authorization: Bearer {{tokenOwner}}
+
+{ "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }
+
+############################################################
+### USERS (REGISTRATION)
+############################################################
+
+### Register user (GOOD) -> 201 (run once)
+POST {{host}}/api/users
 Content-Type: application/json
 
-{ "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" }
+{ "username": "test", "email": "test@example.com", "password": "password" }
 
+### Register user (BAD: missing field) -> 400
+POST {{host}}/api/users
+Content-Type: application/json
+
+{ "username": "x" }
+
+### Register user (BAD: username taken) -> 409
+POST {{host}}/api/users
+Content-Type: application/json
+
+{ "username": "test", "email": "test2@example.com", "password": "password" }
+
+############################################################
+### AUTH (LOGIN/TOKENS)
+############################################################
+
+### Login (GOOD) -> 200 returns token (copy into @tokenTest)
+POST {{host}}/api/auth/tokens
+Content-Type: application/json
+
+{ "username": "test", "password": "password" }
+
+### Login (BAD: wrong password) -> 401
+POST {{host}}/api/auth/tokens
+Content-Type: application/json
+
+{ "username": "test", "password": "wrong" }
+
+### Login (BAD: user doesn't exist) -> 401
+POST {{host}}/api/auth/tokens
+Content-Type: application/json
+
+{ "username": "no_such_user", "password": "password" }
+
+### Login (BAD: missing fields) -> 400
+POST {{host}}/api/auth/tokens
+Content-Type: application/json
+
+{ "username": "test" }
+
+################################
+### Owner Setup
+################################
+
+### Register owner user
+POST http://localhost:3000/api/users
+Content-Type: application/json
+
+{ "username":  "chunkylover23", "email":  "alice@example.com", "password":  "password" }
+
+### Login as owner user
+POST http://localhost:3000/api/auth/tokens
+Content-Type: application/json
+
+{ "username":  "chunkylover23", "password":  "password" }
