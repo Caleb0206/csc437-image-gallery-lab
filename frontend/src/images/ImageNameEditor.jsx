@@ -1,4 +1,5 @@
 import {useState} from "react";
+import "./Images.css";
 
 export function ImageNameEditor({imageId, initialValue, onRenameSuccess, authToken}) {
     const [isEditingName, setIsEditingName] = useState(false);
@@ -48,7 +49,7 @@ export function ImageNameEditor({imageId, initialValue, onRenameSuccess, authTok
             <div style={{margin: "1em 0"}}>
                 <div aria-live="polite">
                     {isSaving && <p>Renaming image...</p>}
-                    {error !== "" && <p>{error}</p>}
+                    {error !== "" && <p className="image-upload-error">{error}</p>}
                 </div>
                 <label>
                     New Name
@@ -74,7 +75,7 @@ export function ImageNameEditor({imageId, initialValue, onRenameSuccess, authTok
         return (
             <div style={{margin: "1em 0"}}>
                 <div aria-live="polite">
-                    {error !== "" && <p>{error}</p>}
+                    {error !== "" && <p className="image-upload-error">{error}</p>}
                 </div>
                 <button onClick={handleEditPressed}>Edit name</button>
             </div>

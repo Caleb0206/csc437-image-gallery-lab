@@ -105,8 +105,31 @@ export function registerImageRoutes(app, imageProvider) {
         imageMiddlewareFactory.single("image"),
         handleImageFileErrors,
         async (req, res) => {
-            // Final handler function after the above two middleware functions finish running
-            res.status(500).send("Not implemented");
+            try {
+                const uploadedFile = req.file;
+                const imageName = req.body?.name;
+                const username = req.userInfo?.username;
+
+                if (!uploadedFile || typeof imageName !== "string" || typeof username !== "string") {
+                    return res.status(400).send({
+                        error: "Bad Request",
+                        message: "Missing uploaded image, image name, or user info",
+                    });
+                }
+                const src = `/uploads/${uploadedFile.filename}`;
+                const insertedId = await imageProvider.createImage(
+                    src,
+                    imageName.trim(),
+                    username
+                );
+                return res.status(201).send({
+                    id: insertedId,
+                });
+            } catch (e) {
+                return res.status(500).json({
+                    error: e instanceof Error ? e.message : String(e),
+                });
+            }
         }
     );
 }

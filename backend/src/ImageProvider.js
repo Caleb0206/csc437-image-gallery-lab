@@ -1,6 +1,6 @@
-import { MongoClient } from "mongodb";
-import { getEnvVar } from "./getEnvVar.js";
-import { ObjectId } from "mongodb";
+import {MongoClient} from "mongodb";
+import {getEnvVar} from "./getEnvVar.js";
+import {ObjectId} from "mongodb";
 
 export class ImageProvider {
     constructor(mongoClient) {
@@ -25,7 +25,7 @@ export class ImageProvider {
 
         pipeline.push({
             $set: {
-                author: { $first: "$author" },
+                author: {$first: "$author"},
             },
         });
 
@@ -34,13 +34,14 @@ export class ImageProvider {
         });
         return this.imagesCollection.aggregate(pipeline).toArray();
     }
+
     async getOneImage(imageId) {
         if (!ObjectId.isValid(imageId)) {
             return null;
         }
         const pipeline = [];
 
-        pipeline.push({ $match: { _id: new ObjectId(imageId) } });
+        pipeline.push({$match: {_id: new ObjectId(imageId)}});
         pipeline.push({
             $lookup: {
                 from: this.usersCollectionName,
@@ -51,7 +52,7 @@ export class ImageProvider {
         });
         pipeline.push({
             $set: {
-                author: { $first: "$author" },
+                author: {$first: "$author"},
             }
         });
 
@@ -62,8 +63,8 @@ export class ImageProvider {
 
     async updateImageName(imageId, newName) {
         const result = await this.imagesCollection.updateOne(
-            { _id: new ObjectId(imageId) },
-            { $set: { name: newName } }
+            {_id: new ObjectId(imageId)},
+            {$set: {name: newName}}
         )
         return result.matchedCount;
     }
@@ -73,9 +74,18 @@ export class ImageProvider {
             return null;
         }
         const doc = await this.imagesCollection.findOne(
-            { _id: new ObjectId(imageId) },
-            { projection: { authorId: 1 } }
+            {_id: new ObjectId(imageId)},
+            {projection: {authorId: 1}}
         );
         return doc?.authorId ?? null;
+    }
+
+    async createImage(src, name, authorId) {
+        const result = await this.imagesCollection.insertOne({
+            src,
+            name,
+            authorId,
+        });
+        return result.insertedId;
     }
 }

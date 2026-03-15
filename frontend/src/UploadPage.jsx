@@ -1,5 +1,6 @@
 import {MainLayout} from "./MainLayout.jsx";
 import {useActionState, useId, useState} from "react";
+import {useNavigate} from "react-router";
 
 function readAsDataURL(file) {
     return new Promise((resolve, reject) => {
@@ -13,6 +14,7 @@ function readAsDataURL(file) {
 export function UploadPage({authToken}) {
     const fileId = useId();
     const [preview, setPreview] = useState(null);
+    const navigate = useNavigate();
 
     async function handleFileChange(event) {
         const file = event.target.files?.[0];
@@ -31,7 +33,7 @@ export function UploadPage({authToken}) {
 
     async function handleUpload(_prevResult, formData) {
         try {
-            const response = await fetch("api/images", {
+            const response = await fetch("/api/images", {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${authToken}`,
@@ -41,6 +43,8 @@ export function UploadPage({authToken}) {
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
+            const data = await response.json();
+            navigate(`/images/${data.id}`)
             return "";
         } catch (e) {
             setPreview("");
